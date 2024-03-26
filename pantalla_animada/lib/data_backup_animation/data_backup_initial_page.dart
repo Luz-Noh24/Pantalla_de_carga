@@ -9,7 +9,10 @@ enum DataBackupState {
   end,
 }
 
-class DataBackupInitialPage extends StatefulWidget {
+class DataBackupInitialPage extends StatefulWidget 
+{
+  final VoidCallback onAnimtionStarted;
+  const DataBackupInitialPage({Key? key,required this.onAnimtionStarted}): super(key: key);
   @override
   _DataBackupInitialPageState createState() => _DataBackupInitialPageState();
 }
@@ -34,17 +37,64 @@ class _DataBackupInitialPageState extends State<DataBackupInitialPage> {
                 ),
               ),
             ),
+            if(_currentState == DataBackupState.end )
+            Expanded
+            (
+              flex: 2,
+              child: TweenAnimationBuilder(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: _duration,
+                builder: (context, value, child) {
+                  return Opacity
+                  (opacity: value, child: child,);
+                },
+                child: Column
+                (
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: 
+                  [
+                    Text('uploading file',
+                    textAlign: TextAlign.center, style: TextStyle(fontSize: 17,color: Colors.black,fontWeight: FontWeight.w300,),),
+                    const SizedBox(height: 10),
+                    Expanded
+                    (child: FittedBox
+                    (child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: ProgressCounter(),
+                    ),) )
+                  ]
+                ),
+              ),
+              if(_currentState != DataBackupState.end )
             Expanded(
               flex: 2,
-              child: Column(
-                children: [
-                  Text('last backup:'),
-                  const SizedBox(height: 5),
-                  Text(
-                    '26 marzo 2024',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22),
-                  ),
-                ],
+              child: TweenAnimationBuilder(
+                tween: Tween(begin: 1.0, end: _currentState != DataBackupState.initial? 0.0 : 1.0),
+                duration: _duration,
+                onEnd: () {
+                  setState(() {
+                    _currentState = DataBackupState.end;
+                  });
+                },
+                builder: (_,value, child)
+                {
+                  return Opacity
+                  (opacity: value, Transform.translate
+                  (
+                    offset: Offset(0.0, -50 * value),
+                    child: child
+                  ),);
+                },
+                child: Column(
+                  children: [
+                    Text('last backup:'),
+                    const SizedBox(height: 5),
+                    Text(
+                      '26 marzo 2024',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22),
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -72,6 +122,7 @@ class _DataBackupInitialPageState extends State<DataBackupInitialPage> {
                               setState(() {
                                 _currentState = DataBackupState.start;
                               });
+                              widget.onAnimtionStarted();
                             },
                           ))
                       : OutlinedButton(
@@ -90,5 +141,12 @@ class _DataBackupInitialPageState extends State<DataBackupInitialPage> {
         ),
       ),
     );
+  }
+}
+
+class ProgressCounter extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
